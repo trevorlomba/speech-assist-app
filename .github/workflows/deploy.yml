@@ -24,13 +24,19 @@ jobs:
         
       - name: Create env file
         run: |
-          echo "window.REACT_APP_OPENAI_API_KEY = atob('$(echo -n '${{ secrets.REACT_APP_OPENAI_API_KEY }}' | base64)');  // Add semicolon" > public/env-config.js
+          # Create the env-config.js file with proper JavaScript syntax
+          echo "window.REACT_APP_OPENAI_API_KEY = atob('$(echo -n '${{ secrets.REACT_APP_OPENAI_API_KEY }}' | base64)');" > public/env-config.js
+          # Debug: Check file content (will be masked in logs)
+          echo "Checking env-config.js exists:"
+          ls -la public/env-config.js
+          echo "First line of env-config.js:"
+          head -n 1 public/env-config.js
           
       - name: Build
         run: CI=false npm run build
         
       - name: Deploy
-        uses: peaceiris/actions-gh-pages@v4
+        uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./build
