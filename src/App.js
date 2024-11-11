@@ -246,6 +246,10 @@ function App() {
 
 
   const handleGenerateResponse = async () => {
+    // Debug logging
+    console.log('API Key exists:', !!config.apiKey);
+    console.log('API Key length:', config.apiKey ? config.apiKey.length : 0);
+
     const messages = [
       {
         role: 'system',
@@ -276,10 +280,16 @@ function App() {
     ];
 
     try {
+      // Log the headers before making the request
+      console.log('Headers being sent:', {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${config.apiKey?.substring(0, 5)}...` // Only log first 5 chars for security
+      });
+
       const response = await axios.post(
         'https://api.openai.com/v1/chat/completions',
         {
-          model: 'gpt-4o-mini',
+          model: 'gpt-4o-mini',  // Note: Is this the correct model name?
           messages: messages,
           max_tokens: 100,
           temperature: 0.7,
@@ -299,7 +309,12 @@ function App() {
       setGeneratedResponse(phrases);
       setShowPhrasesModal(true);
     } catch (error) {
-      console.error('Error generating response:', error);
+      // Enhanced error logging
+      console.error('Error details:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      });
       setGeneratedResponse([]);
     }
   };
