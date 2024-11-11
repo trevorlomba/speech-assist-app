@@ -246,9 +246,9 @@ function App() {
 
 
   const handleGenerateResponse = async () => {
+    // Wait for API key to be initialized
     if (!config.apiKey) {
-      console.error('API key is missing');
-      return;
+      await config.initialize();
     }
 
     console.log('Making API call with key present:', !!config.apiKey);
