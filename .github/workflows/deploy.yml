@@ -24,16 +24,12 @@ jobs:
         
       - name: Create env file
         run: |
-          # Create env-config.js with proper JavaScript syntax
+          # Create env-config.js with verification
           cat << EOF > public/env-config.js
-          // API Configuration
+          console.log('Loading API configuration...');
           window.REACT_APP_OPENAI_API_KEY = atob('$(echo -n '${{ secrets.REACT_APP_OPENAI_API_KEY }}' | base64)');
-          // End of configuration
+          console.log('API key loaded:', !!window.REACT_APP_OPENAI_API_KEY);
           EOF
-          
-          # Verify file was created
-          echo "Content of env-config.js:"
-          cat public/env-config.js
           
       - name: Build
         run: CI=false npm run build

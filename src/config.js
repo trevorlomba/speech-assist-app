@@ -5,25 +5,31 @@ const getApiKey = () => {
   }
   
   console.log('Production mode');
+  console.log('Window object exists:', typeof window !== 'undefined');
+  
   if (typeof window === 'undefined') {
-    console.log('Window is undefined');
     return '';
   }
   
-  if (!window.REACT_APP_OPENAI_API_KEY) {
-    console.log('API key not found in window');
-    return '';
-  }
+  // Add delay to ensure env-config.js has loaded
+  setTimeout(() => {
+    console.log('Delayed check - API key exists:', !!window.REACT_APP_OPENAI_API_KEY);
+  }, 1000);
   
-  console.log('API key found in window');
-  return window.REACT_APP_OPENAI_API_KEY;
+  return window.REACT_APP_OPENAI_API_KEY || '';
 };
 
 const config = {
   apiKey: getApiKey()
 };
 
-// Log config state
-console.log('Config initialized with API key:', !!config.apiKey);
+// Add verification logging
+if (process.env.NODE_ENV === 'production') {
+  console.log('Initial config state:', {
+    hasWindow: typeof window !== 'undefined',
+    hasApiKey: !!window.REACT_APP_OPENAI_API_KEY,
+    configApiKey: !!config.apiKey
+  });
+}
 
 export default config;
