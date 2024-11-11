@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/speech-assist-app/static/css/main.1e08f09e.css",
-    "main.js": "/speech-assist-app/static/js/main.102fd536.js",
+    "main.js": "/speech-assist-app/static/js/main.c37bccda.js",
     "static/js/453.312f2bbc.chunk.js": "/speech-assist-app/static/js/453.312f2bbc.chunk.js",
     "index.html": "/speech-assist-app/index.html",
     "main.1e08f09e.css.map": "/speech-assist-app/static/css/main.1e08f09e.css.map",
-    "main.102fd536.js.map": "/speech-assist-app/static/js/main.102fd536.js.map",
+    "main.c37bccda.js.map": "/speech-assist-app/static/js/main.c37bccda.js.map",
     "453.312f2bbc.chunk.js.map": "/speech-assist-app/static/js/453.312f2bbc.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.1e08f09e.css",
-    "static/js/main.102fd536.js"
+    "static/js/main.c37bccda.js"
   ]
 }
