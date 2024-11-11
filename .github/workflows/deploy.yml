@@ -25,7 +25,7 @@ jobs:
       - name: Create env file
         run: |
           API_KEY_BASE64=$(echo -n '${{ secrets.REACT_APP_OPENAI_API_KEY }}' | base64)
-          sed "s/__API_KEY_PLACEHOLDER__/$API_KEY_BASE64/" public/env-config.js > public/env-config.js.tmp
+          sed "s|__API_KEY_PLACEHOLDER__|${API_KEY_BASE64}|g" public/env-config.js > public/env-config.js.tmp
           mv public/env-config.js.tmp public/env-config.js
           
       - name: Build
