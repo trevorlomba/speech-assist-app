@@ -246,9 +246,9 @@ function App() {
 
 
   const handleGenerateResponse = async () => {
-    // Wait for API key to be initialized
     if (!config.apiKey) {
-      await config.initialize();
+      console.error('API key is missing');
+      return;
     }
 
     console.log('Making API call with key present:', !!config.apiKey);
@@ -283,16 +283,10 @@ function App() {
     ];
 
     try {
-      // Log the headers before making the request
-      console.log('Headers being sent:', {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${config.apiKey?.substring(0, 5)}...` // Only log first 5 chars for security
-      });
-
       const response = await axios.post(
         'https://api.openai.com/v1/chat/completions',
         {
-          model: 'gpt-4o-mini',  // Note: Is this the correct model name?
+          model: 'gpt-4o-mini',  
           messages: messages,
           max_tokens: 100,
           temperature: 0.7,
