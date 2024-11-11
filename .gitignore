@@ -1,5 +1,5 @@
 node_modules
-build
+build/
 .env
 .env.local
 .env.development.local
