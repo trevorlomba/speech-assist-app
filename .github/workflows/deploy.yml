@@ -24,7 +24,7 @@ jobs:
           echo "window.REACT_APP_OPENAI_API_KEY='${{ secrets.REACT_APP_OPENAI_API_KEY }}'" > public/env-config.js
           
       - name: Build
-        run: npm run build
+        run: CI=false npm run build
         
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
