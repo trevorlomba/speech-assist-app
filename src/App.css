@@ -1,0 +1,860 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.word-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+
+.word-button {
+  margin: 5px;
+  padding: 10px;
+  font-size: 16px;
+  cursor: pointer;
+  border: 1px solid #333;
+  border-radius: 5px;
+  background-color: #f0f0f0;
+}
+
+.word-button:hover {
+  background-color: #ddd;
+}
+
+.word-button {
+  margin: 5px;
+  padding: 10px;
+  font-size: 16px;
+  cursor: pointer;
+  border: 1px solid #333;
+  border-radius: 5px;
+  background-color: #f0f0f0;
+}
+
+.word-button.selected {
+  background-color: #4caf50; /* Green to indicate selection */
+  color: white;
+  border: 1px solid #388e3c;
+}
+
+.transcript-container {
+  margin: 20px;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.transcript-controls {
+  margin-bottom: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.scroll-controls {
+  display: flex;
+  gap: 10px;
+}
+
+.transcript-controls button {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  background: #f5f5f5;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.transcript-controls button:hover {
+  background: #e5e5e5;
+}
+
+.transcript-controls button:active {
+  background: #d5d5d5;
+}
+
+.transcript-text {
+  max-height: 70px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  line-height: 2;
+  padding: 15px;
+  border: 1px solid #eee;
+  border-radius: 3px;
+  white-space: pre-wrap;
+  scroll-behavior: smooth;
+  background: #fff;
+  font-size: 16px;
+  position: relative;
+}
+
+/* Accessibility focus indicators */
+.transcript-text:focus {
+  outline: 2px solid #007bff;
+  outline-offset: -2px;
+}
+
+.transcript-controls button:focus {
+  outline: 2px solid #007bff;
+  outline-offset: 2px;
+}
+
+/* Scrollbar styling */
+.transcript-text::-webkit-scrollbar {
+  width: 8px;
+}
+
+.transcript-text::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.transcript-text::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.transcript-text::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Optional: Add a visual indicator when auto-scroll is disabled */
+.transcript-text::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(transparent, #007bff);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.transcript-text[data-autoscroll="false"]::after {
+  opacity: 1;
+}
+
+.page-indicator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  color: #007bff;
+  /* color: white; */
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: bold;
+  margin: 0 4px;
+  vertical-align: middle;
+}
+
+.transcript-word {
+  display: inline;
+}
+
+/* Optional: Add hover state to show page boundaries */
+.transcript-word:hover {
+  background-color: rgba(0, 123, 255, 0.1);
+}
+
+.page-phrase-container {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  margin: 2px 0;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.page-phrase-container:hover {
+  background-color: rgba(0, 123, 255, 0.1);
+}
+
+.page-indicator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  color: white;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: bold;
+  margin-right: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  transition: transform 0.2s;
+  flex-shrink: 0;
+}
+
+.page-phrase {
+  line-height: 1.5;
+}
+
+/* Active state for current page */
+.page-phrase-container[data-active="true"] {
+  background-color: rgba(0, 123, 255, 0.15);
+}
+
+/* Optional: Add focus styles for keyboard navigation */
+.page-phrase-container:focus-within {
+  outline: 2px solid #007bff;
+  outline-offset: 2px;
+}
+
+/* Make the container focusable for keyboard users */
+.page-phrase-container {
+  position: relative;
+}
+
+.page-phrase-container::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transition: box-shadow 0.2s;
+}
+
+.page-phrase-container:focus-within::after {
+  box-shadow: 0 0 0 2px #007bff;
+  border-radius: 4px;
+}
+
+.controls-section {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+  gap: 20px;
+}
+
+.transcript-controls,
+.pagination-controls {
+  display: flex;
+  gap: 10px;
+}
+
+/* Style for active toggle buttons */
+button.active {
+  background-color: #007bff;
+  color: white;
+}
+
+.control-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 12px;
+  border-radius: 50%;
+  border: 2px solid #ddd;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin: 5px 5px;
+}
+
+.control-button:hover {
+  transform: scale(1.1);
+  border-color: #999;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.control-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Optional: Add a pulse animation to the record button when active */
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.control-button:disabled .recording {
+  animation: pulse 2s infinite;
+}
+
+.control-buttons-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;  /* Centers the buttons horizontally */
+  gap: 20px;
+  padding: 15px 0;
+  width: 100%;
+}
+
+.control-button-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.control-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 30vw;  /* Fixed width */
+  height: 60px;  /* Fixed height */
+  padding: 8px;
+  border-radius: 12px;  /* Rounded corners */
+  border: 2px solid #ddd;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  gap: 4px;  /* Space between icon and label */
+}
+
+.button-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #666;
+  margin-top: 4px;
+}
+
+.control-button:hover {
+  transform: scale(1.05);
+  border-color: #999;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.control-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Optional: Add a pulse animation to the record button when active */
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.control-button:not(:disabled) .recording {
+  animation: pulse 2s infinite;
+}
+
+.word-pages-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.page-controls-container {
+  padding: 15px;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  background: #f8f9fa;
+}
+
+.word-buttons-container {
+  padding: 15px;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  min-height: 100px;
+  line-height: 1.5;
+}
+
+.page-navigation {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding: 10px;
+}
+
+.nav-arrow {
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 18px;
+  color: #495057;
+}
+
+.nav-arrow:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.expand-button {
+  padding: 8px 16px;
+  background: #e9ecef;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 18px;
+  color: #495057;
+}
+
+.expand-button:hover {
+  background: #dee2e6;
+}
+
+.page-navigation button {
+  padding: 8px 16px;
+  border: 3px solid transparent; /* For the selected state border */
+  border-radius: 6px;
+  font-size: 18px; /* Larger text */
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.page-navigation button:hover {
+  background: #f0f0f0;
+}
+
+.page-navigation button.active {
+  border-color: #333; /* Dark border for selected state */
+  box-shadow: 0 0 0 1px white; /* Inner white line to separate from button color */
+}
+
+.page-navigation button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.phrase-generation-section {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-top: 20px;
+}
+
+.intentions-row {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.intention-button {
+  padding: 8px 16px;
+  border: 2px solid #007bff;
+  border-radius: 20px;
+  background: white;
+  color: #007bff;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.intention-button.active {
+  background: #007bff;
+  color: white;
+}
+
+.generate-button {
+  padding: 12px 24px;
+  background: #28a745;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+  align-self: center;
+}
+
+.generate-button:hover {
+  background: #218838;
+}
+
+.generate-button:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+}
+
+.generated-phrases {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.phrase-button {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: white;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s;
+}
+
+.phrase-button:hover {
+  background: #f0f0f0;
+}
+
+/* Main container */
+.main-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  padding: 20px;
+  box-sizing: border-box;
+  gap: 20px;
+}
+
+/* Grid container */
+.app-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 2fr 1fr;
+  gap: 0;
+  flex: 1;
+  min-height: 0;
+}
+
+/* Individual sections */
+.transcript-section,
+.word-pages-section,
+.phrase-generation-section {
+  border: 1px solid #ddd;
+  border-radius: 0;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+/* Optional: If you want to avoid double borders between sections */
+.word-pages-section {
+  border-left: none;
+}
+
+.phrase-generation-section {
+  border-top: none;
+}
+
+/* Update section placements */
+.transcript-section {
+  grid-column: 1;
+  grid-row: 1;
+  overflow-y: auto;
+}
+
+.word-pages-section {
+  grid-column: 2;
+  grid-row: 1;
+  overflow-y: auto;
+}
+
+.phrase-generation-section {
+  grid-column: 1 / span 2; /* Full width */
+  grid-row: 2;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 15px;
+}
+
+/* Dynamic grid adjustments for hiding sections */
+.app-container.hide-transcript .word-pages-section {
+  grid-column: 1 / span 2;
+}
+
+.app-container.hide-word-pages .transcript-section {
+  grid-column: 1 / span 2;
+}
+
+/* Toggle buttons container */
+.toggle-buttons-container {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  padding: 10px 0;
+  margin-bottom: 10px;
+}
+
+/* Toggle buttons */
+.toggle-button {
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #007bff;
+  background-color: white;
+  border: 2px solid #007bff;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.toggle-button:hover {
+  background-color: #007bff;
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.toggle-button.active {
+  background-color: #007bff;
+  color: white;
+}
+
+.phrases-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.phrases-modal {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  width: 80%;
+  max-width: 800px;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  position: relative;
+}
+
+.phrases-modal .close-button {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+}
+
+.generated-phrases {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.phrase-button {
+  padding: 20px;
+  text-align: left;
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 24px;
+  line-height: 1.4;
+}
+
+.phrase-button:hover {
+  background: #e9ecef;
+  transform: translateY(-1px);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.regenerate-button {
+  padding: 12px 24px;
+  background: #28a745;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.regenerate-button:hover {
+  background: #218838;
+  transform: translateY(-1px);
+}
+
+.add-word-button {
+  padding: 8px 16px;
+  background: #28a745;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+  height: 40px;
+  width: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.add-word-button:hover {
+  background: #218838;
+  transform: scale(1.1);
+}
+
+.keyboard-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.keyboard-modal {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 900px;
+  max-height: 90vh;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.keyboard-input {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.keyboard-input input {
+  flex: 1;
+  padding: 15px;
+  font-size: 24px;
+  border: 2px solid #dee2e6;
+  border-radius: 8px;
+}
+
+.keyboard-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.keyboard-row {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.keyboard-key {
+  padding: 20px;
+  min-width: 60px;
+  font-size: 24px;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  background: #3b70a5;
+  cursor: pointer;
+  transition: all 0.1s;
+}
+
+.keyboard-key:hover {
+  background: #e9ecef;
+  transform: translateY(-2px);
+}
+
+.keyboard-key.wide {
+  min-width: 120px;
+}
+
+.add-input-button {
+  padding: 15px 30px;
+  background: #28a745;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+
+.selected-words-display {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.word-button {
+  padding: 8px 16px;
+  background: #e9ecef;
+  border: 1px solid #ced4da;
+  border-radius: 20px;
+  font-size: 16px;
+  cursor: pointer;
+  align-items: center;
+  gap: 5px;
+}
+
+.word-button:hover {
+  background: #dee2e6;
+}
+
+
+.add-word-button {
+  font-weight: bold;
+  font-size: 18px;
+  padding: 8px 16px;
+  background: #2885a7;
+}
