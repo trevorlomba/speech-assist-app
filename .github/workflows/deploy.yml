@@ -5,6 +5,9 @@ on:
     branches:
       - main
 
+permissions:
+  contents: write
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -21,7 +24,9 @@ jobs:
         
       - name: Create env file
         run: |
-          echo "window.REACT_APP_OPENAI_API_KEY='${{ secrets.REACT_APP_OPENAI_API_KEY }}'" > public/env-config.js
+          API_KEY_BASE64=$(echo -n '${{ secrets.REACT_APP_OPENAI_API_KEY }}' | base64)
+          sed "s/__API_KEY_PLACEHOLDER__/$API_KEY_BASE64/" public/env-config.js > public/env-config.js.tmp
+          mv public/env-config.js.tmp public/env-config.js
           
       - name: Build
         run: CI=false npm run build
