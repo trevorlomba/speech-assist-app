@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/speech-assist/static/css/main.1e08f09e.css",
+    "main.js": "/speech-assist/static/js/main.b7c4d2ed.js",
+    "static/js/453.312f2bbc.chunk.js": "/speech-assist/static/js/453.312f2bbc.chunk.js",
+    "index.html": "/speech-assist/index.html",
+    "main.1e08f09e.css.map": "/speech-assist/static/css/main.1e08f09e.css.map",
+    "main.b7c4d2ed.js.map": "/speech-assist/static/js/main.b7c4d2ed.js.map",
+    "453.312f2bbc.chunk.js.map": "/speech-assist/static/js/453.312f2bbc.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.1e08f09e.css",
+    "static/js/main.b7c4d2ed.js"
+  ]
+}
