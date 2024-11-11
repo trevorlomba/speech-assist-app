@@ -246,9 +246,12 @@ function App() {
 
 
   const handleGenerateResponse = async () => {
-    // Debug logging
-    console.log('API Key exists:', !!config.apiKey);
-    console.log('API Key length:', config.apiKey ? config.apiKey.length : 0);
+    if (!config.apiKey) {
+      console.error('API key is missing');
+      return;
+    }
+
+    console.log('Making API call with key present:', !!config.apiKey);
 
     const messages = [
       {
