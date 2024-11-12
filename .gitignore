@@ -7,3 +7,8 @@ build/
 .env.production.local
 .env.*.local
 .DS_Store
+# Ignore environment variable files
+.env
+.env.development
+.env.production
+

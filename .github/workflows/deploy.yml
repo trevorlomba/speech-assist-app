@@ -21,11 +21,11 @@ jobs:
           
       - name: Install Dependencies
         run: npm install
-              
-      - name: Create .env file
+        
+      - name: Create .env.production file
         run: |
-          echo "REACT_APP_OPENAI_API_KEY=${{ secrets.REACT_APP_OPENAI_API_KEY }}" > .env
-
+          echo "REACT_APP_OPENAI_API_KEY=${{ secrets.REACT_APP_OPENAI_API_KEY }}" > .env.production
+        
       - name: Build
         run: CI=false npm run build
         
