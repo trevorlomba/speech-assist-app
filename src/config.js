@@ -1,5 +1,7 @@
 const config = {
-  apiKey: process.env.REACT_APP_OPENAI_API_KEY,
+  apiUrl: process.env.NODE_ENV === 'development' 
+    ? 'http://localhost:3001'
+    : 'https://speech-assist-server.onrender.com' 
 };
 
 export default config;

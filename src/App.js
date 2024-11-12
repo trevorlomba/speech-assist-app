@@ -246,17 +246,12 @@ function App() {
 
 
   const handleGenerateResponse = async () => {
-    if (!config.apiKey) {
-      console.error('API key is missing');
-      return;
-    }
-
-    console.log('Making API call with key present:', !!config.apiKey);
-
-    const messages = [
-      {
-        role: 'system',
-        content: `You are an AI assistant designed to help generate communication responses for a user with limited verbal ability. The user selects words that are spoken in the room, and these selected words represent the basis of their intended response.
+    try {
+      const response = await axios.post(`${config.apiUrl}/api/chat`, {
+        messages: [
+          {
+            role: 'system',
+            content: `You are an AI assistant designed to help generate communication responses for a user with limited verbal ability. The user selects words that are spoken in the room, and these selected words represent the basis of their intended response.
 
         Your task is to generate conversational replies that are concise, contextually appropriate, and easy to understand. Based on the selected words and the user's intent, generate responses that align with the intended meaning, which may be affirmative, negative, inquisitive, or casual.
 
@@ -275,43 +270,22 @@ function App() {
         Respond in a friendly, supportive tone that encourages further interaction.
         
         Make sure to set the response as an array of strings, with each string being a separate phrase. This is critical. For Example: "content": "\`\`\`json\\n[\\n    \\"It's time for us to talk.\\",\\n    \\"Do you have time for us?\\",\\n    \\"Let's spend some time together.\\"\\n]\\n\`\`\`"`
-      },
-      {
-        role: 'user',
-        content: `Original phrase: "${originalPhrase}". Selected words: ${selectedWords.join(' ')}. User intent: ${selectedIntent}`
-      }
-    ];
-
-    try {
-      const response = await axios.post(
-        'https://api.openai.com/v1/chat/completions',
-        {
-          model: 'gpt-4o-mini',  
-          messages: messages,
-          max_tokens: 100,
-          temperature: 0.7,
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${config.apiKey}`,
           },
-        }
-      );
+          {
+            role: 'user',
+            content: `Original phrase: "${originalPhrase}". Selected words: ${selectedWords.join(' ')}. User intent: ${selectedIntent}`
+          }
+        ]
+      });
 
-      const content = response.data.choices[0].message.content;
+      const content = response.data.content;
       const jsonStr = content.replace(/```json\n|\n```/g, '');
       const phrases = JSON.parse(jsonStr);
       
       setGeneratedResponse(phrases);
       setShowPhrasesModal(true);
     } catch (error) {
-      // Enhanced error logging
-      console.error('Error details:', {
-        message: error.message,
-        response: error.response?.data,
-        status: error.response?.status
-      });
+      console.error('Error generating response:', error);
       setGeneratedResponse([]);
     }
   };

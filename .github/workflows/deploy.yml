@@ -28,9 +28,11 @@ jobs:
         
       - name: Build
         run: CI=false npm run build
-        
-      - name: Deploy
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./build
+          
+  - name: Deploy
+    uses: peaceiris/actions-gh-pages@v3
+    with:
+      github_token: ${{ secrets.GITHUB_TOKEN }}
+      publish_dir: ./build
+      openai_api_key: ${{ secrets.REACT_APP_OPENAI_API_KEY }}
+
