@@ -1,1 +1,1 @@
-window.REACT_APP_OPENAI_API_KEY = atob('__API_KEY_PLACEHOLDER__');
+window.REACT_APP_OPENAI_API_KEY = ''
