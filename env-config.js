@@ -1,1 +1,1 @@
-window.REACT_APP_OPENAI_API_KEY = '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';
+window.REACT_APP_OPENAI_API_KEY = ''
