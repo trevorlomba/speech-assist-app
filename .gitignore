@@ -12,4 +12,4 @@ build/
 .env.development
 .env.production
 
-server/
+speech-assist-server/
