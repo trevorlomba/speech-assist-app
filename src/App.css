@@ -379,27 +379,39 @@ button.active {
 }
 
 .word-pages-section {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  padding: 20px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  padding: 1rem;
 }
 
-.page-controls-container {
-  padding: 15px;
-  border: 1px solid #eee;
-  border-radius: 6px;
-  background: #f8f9fa;
+.word-pages-container {
+  display: block;
+  padding: 1rem;
+  line-height: 1.8;
+}
+
+.word-page {
+  display: inline;
+  background: #fff;
+}
+
+.page-indicator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  font-size: 12px;
+  margin: 0 4px;
+  vertical-align: middle;
 }
 
 .word-buttons-container {
-  padding: 15px;
-  border: 1px solid #eee;
-  border-radius: 6px;
-  min-height: 100px;
-  line-height: 1.5;
+  display: inline;
+}
+
+.word-button {
+  display: inline;
+  margin: 0 2px;
 }
 
 .page-navigation {
@@ -857,4 +869,147 @@ button.active {
   font-size: 18px;
   padding: 8px 16px;
   background: #2885a7;
+}
+
+.phrase-overlay {
+  position: fixed;
+  top: 10%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.phrase-button {
+  padding: 10px;
+  font-size: 1rem;
+  font-weight: 500;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.phrase-button.selected {
+  background-color: #ff9800; /* Orange when selected */
+}
+
+.word-button.phrase-highlight {
+  background-color: rgba(0, 123, 255, 0.1);
+  position: relative;
+}
+
+.word-button.phrase-start {
+  border-top-left-radius: 20px;
+  border-bottom-left-radius: 20px;
+  margin-left: 4px;
+}
+
+.word-button.phrase-end {
+  border-top-right-radius: 20px;
+  border-bottom-right-radius: 20px;
+  margin-right: 4px;
+}
+
+.word-button.phrase-highlight:hover {
+  background-color: rgba(0, 123, 255, 0.2);
+}
+
+.word-button.phrase-button {
+  background-color: #e3f2fd;
+  border: 2px solid #90caf9;
+  border-radius: 20px;
+  padding: 8px 16px;
+  margin: 2px 4px;
+}
+
+.word-button.phrase-button:hover {
+  background-color: #bbdefb;
+}
+
+.word-button.phrase-button.selected {
+  background-color: #2196f3;
+  color: white;
+  border-color: #1976d2;
+}
+
+.word-button.selected-phrase-word {
+  background-color: #bbdefb;
+  border: 2px solid #1976d2;
+  margin: 2px 2px;
+  position: relative;
+}
+
+.word-button.selected-phrase-word:hover {
+  background-color: #90caf9;
+}
+
+.word-button.selected-phrase-word::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  background-color: #1976d2;
+  border-radius: 50%;
+}
+
+.selected-phrase-container {
+  display: inline-flex;
+  background-color: #f0f0f0;
+  border: 2px solid #ccc;
+  border-radius: 20px;
+  padding: 2px;
+  margin: 2px 4px;
+  gap: 2px;
+}
+
+.word-button.selected-phrase-word {
+  margin: 0;
+  border: 2px solid #ddd;
+  background-color: white;
+  z-index: 1;
+}
+
+.word-button.selected-phrase-word.selected {
+  border-color: #1976d2;
+  background-color: #bbdefb;
+}
+
+.word-button.selected-phrase-word:hover {
+  background-color: #f8f9fa;
+  transform: translateY(-1px);
+}
+
+.word-button.phrase-button[data-type="question"] {
+  background-color: #e3f2fd;
+  border-color: #90caf9;
+}
+
+.word-button.phrase-button[data-type="command"] {
+  background-color: #f3e5f5;
+  border-color: #ce93d8;
+}
+
+.word-button.phrase-button[data-type="negative"] {
+  background-color: #ffebee;
+  border-color: #ef9a9a;
+}
+
+.word-button.phrase-button[data-type="statement"] {
+  background-color: #e8f5e9;
+  border-color: #a5d6a7;
+}
+
+.word-button.phrase-button[data-type="ai-detected"] {
+  background-color: #fff8e1;
+  border-color: #ffd54f;
+  font-style: italic;
+}
+
+.toggle-button.analyzing {
+  background-color: #e0e0e0;
+  cursor: wait;
 }
