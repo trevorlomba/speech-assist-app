@@ -386,25 +386,24 @@ function App() {
   };
 
 
+  const handleWordClick = (wordObject) => {
+    console.log("Clicked Word Object:", wordObject);
 
-  const handleWordClick = (word) => {
     setSelectedWords((prevWords) => {
-      const isWordSelected = prevWords.some((sw) => sw.word === word);
-
-      // If the word is already selected, remove it
-      if (isWordSelected) {
-        return prevWords.filter((sw) => sw.word !== word);
-      }
-
-      // Otherwise, add it
-      const transcriptWords = transcript.split(' ');
-      const wordIndex = transcriptWords.findIndex(
-        (w, index) => w === word && !prevWords.some((sw) => sw.index === index)
+      // Check if the word is already selected by matching both word and index
+      const isWordSelected = prevWords.some(
+        (sw) => sw.index === wordObject.index && sw.word === wordObject.word
       );
 
-      if (wordIndex === -1) return prevWords; // Skip if the word isn't found
+      if (isWordSelected) {
+        // If already selected, remove it
+        return prevWords.filter(
+          (sw) => !(sw.index === wordObject.index && sw.word === wordObject.word)
+        );
+      }
 
-      return [...prevWords, { word, index: wordIndex }];
+      // Otherwise, add it to the selected words
+      return [...prevWords, wordObject];
     });
   };
 
@@ -685,8 +684,8 @@ console.log(generatedResponse)
       // Check if this word is part of a selected phrase or word
       const selectedEntry = selectedWords.find(
         (sw) =>
-          sw.index === absoluteIndex ||
-          (sw.index <= absoluteIndex &&
+          sw.index === absoluteIndex || // Exact match for single word
+          (sw.index <= absoluteIndex && // Part of a phrase
             absoluteIndex < sw.index + sw.word.split(' ').length)
       );
 
@@ -695,8 +694,8 @@ console.log(generatedResponse)
         buttons.push(
           <button
             key={`phrase-${absoluteIndex}`}
-            className="word-button phrase-button"
-            onClick={() => handlePhraseClick(selectedEntry)}
+            className="word-button phrase-button selected"
+            onClick={() => handleWordClick(selectedEntry)} // Deselect phrase on click
           >
             {selectedEntry.word}
           </button>
@@ -706,12 +705,17 @@ console.log(generatedResponse)
         i += selectedEntry.word.split(' ').length - 1;
       } else if (!selectedEntry) {
         // Render individual word
+        const isWordSelected = selectedWords.some(
+          (sw) => sw.index === absoluteIndex && sw.word === paginatedWords[i]
+        );
+
         buttons.push(
           <button
             key={`word-${absoluteIndex}`}
-            className={`word-button ${selectedWords.some((sw) => sw.index === absoluteIndex) ? 'selected' : ''
-              }`}
-            onClick={() => handleWordClick(paginatedWords[i])}
+            className={`word-button ${isWordSelected ? 'selected' : ''}`}
+            onClick={() =>
+              handleWordClick({ word: paginatedWords[i], index: absoluteIndex })
+            }
           >
             {paginatedWords[i]}
           </button>
@@ -1003,7 +1007,7 @@ console.log(generatedResponse)
                 <button
                   key={index}
                   className={`word-button ${selectedWords.includes(sw) ? 'selected' : ''}`}
-                  onClick={() => handleWordClick(sw.word)} // Pass only the word to deselect
+                  onClick={() => handleWordClick(sw)}
                 >
                   {sw.word} ×
                 </button>
@@ -1071,7 +1075,7 @@ console.log(generatedResponse)
                       <button
                         key={index}
                         className={`word-button ${selectedWords.some(sw => sw.word === selectedWord.word) ? 'selected' : ''}`}
-                        onClick={() => handleWordClick(selectedWord.word)} // Pass only the word, not the whole object
+                        onClick={() => handleWordClick(selectedWord)}
                       >
                         {selectedWord.word} × {/* Render the `word` property */}
                       </button>
