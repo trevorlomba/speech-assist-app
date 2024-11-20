@@ -263,6 +263,11 @@ function App() {
     console.log('Auto-paginate updated:', autoPaginate);
   }, [autoPaginate]);
 
+
+  useEffect(() => {
+    console.log("Updated Generated Response:", generatedResponse);
+  }, [generatedResponse]);
+
   useEffect(() => {
     const words = transcript.split(' ').filter(word => word !== '');
     const totalPages = Math.ceil(words.length / wordsPerPage);
@@ -384,15 +389,25 @@ function App() {
 
   const handleWordClick = (word) => {
     setSelectedWords((prevWords) => {
-      if (prevWords.includes(word)) {
-        // Deselect word if it's already selected
-        return prevWords.filter((w) => w !== word);
-      } else {
-        // Select word if it's not already selected
-        return [...prevWords, word];
+      const isWordSelected = prevWords.some((sw) => sw.word === word);
+
+      // If the word is already selected, remove it
+      if (isWordSelected) {
+        return prevWords.filter((sw) => sw.word !== word);
       }
+
+      // Otherwise, add it
+      const transcriptWords = transcript.split(' ');
+      const wordIndex = transcriptWords.findIndex(
+        (w, index) => w === word && !prevWords.some((sw) => sw.index === index)
+      );
+
+      if (wordIndex === -1) return prevWords; // Skip if the word isn't found
+
+      return [...prevWords, { word, index: wordIndex }];
     });
   };
+
 
   const handleIntentClick = (intent) => {
     setSelectedIntent(intent);
@@ -401,7 +416,9 @@ function App() {
 
 
   const handleGenerateResponse = async () => {
-    try {
+    const selectedWordsTexts = selectedWords.map((sw) => sw.word);
+    try {    // Extract only the 'word' property from selectedWords
+
       const response = await axios.post(`${config.apiUrl}/api/chat`, {
         messages: [
           {
@@ -442,20 +459,42 @@ Example Response Format:
           },
           {
             role: 'user',
-            content: `Original phrase: "${originalPhrase}". Selected words: ${selectedWords.join(' ')}. User intent: ${selectedIntent}`
+            content: `Selected words: ${selectedWordsTexts.join(', ')}. User intent: ${selectedIntent}`
           }
         ]
       });
 
+      // Parse the response content
       const content = response.data.content;
-      const jsonStr = content.replace(/```json\n|\n```/g, '');
-      const phrases = JSON.parse(jsonStr);
-      
-      setGeneratedResponse(phrases);
+      let phrases;
+
+      try {
+        phrases = JSON.parse(content); // Attempt to parse as JSON
+      } catch (err) {
+        console.error("Error parsing response content as JSON:", err);
+        phrases = [];
+      }
+
+      // Ensure phrases is an array of strings
+      if (!Array.isArray(phrases) || !phrases.every((p) => typeof p === "string")) {
+        console.error("Invalid response format:", phrases);
+        phrases = [];
+      }
+
+      console.log("Parsed Phrases:", phrases); // Log parsed phrases
+      if (!Array.isArray(phrases) || phrases.some((p) => typeof p !== "string")) {
+        console.error("Invalid phrases:", phrases);
+        return; // Exit if phrases is not valid
+      }
+
+
+      console.log("Updating Generated Response with:", phrases);
+      setGeneratedResponse([...phrases]);
       setShowPhrasesModal(true);
+console.log(generatedResponse) 
     } catch (error) {
       console.error('Error generating response:', error);
-      setGeneratedResponse([]);
+
     }
   };
 
@@ -569,48 +608,56 @@ Example Response Format:
 
   const handlePhraseClick = (phrase) => {
     setSelectedWords((prevWords) => {
-      if (prevWords.includes(phrase.text)) {
-        // Deselect phrase and add individual words
-        const words = phrase.text.split(' ');
-        return [...prevWords.filter((w) => w !== phrase.text), ...words];
-      } else {
-        // Select phrase
-        return [...prevWords, phrase.text];
+      const isPhraseSelected = prevWords.some((sw) => sw.word === phrase.word);
+
+      // If the phrase is already selected, deselect it and add individual words
+      if (isPhraseSelected) {
+        const words = phrase.word.split(' ');
+        return [
+          ...prevWords.filter((sw) => sw.word !== phrase.word),
+          ...words.map((word, i) => ({
+            word,
+            index: phrase.index + i, // Calculate the correct index for each word
+          })),
+        ];
       }
+
+      // Otherwise, select the phrase
+      return [
+        ...prevWords.filter(
+          (sw) => sw.index < phrase.index || sw.index >= phrase.index + phrase.word.split(' ').length
+        ),
+        phrase,
+      ];
     });
   };
 
   const renderWordButtons = () => {
-    const words = transcript.split(' ');
+    const words = transcript.split(' '); // All words from the transcript
     const totalPages = Math.ceil(words.length / wordsPerPage);
     const buttons = [];
-    
-    // Calculate which pages to show
-    let pagesToShow = [];
+
+    // Calculate pages to show (similar to the current logic)
+    const pagesToShow = [];
     if (totalPages <= 3) {
-      // Show all pages if 3 or fewer total pages
-      pagesToShow = Array.from({length: totalPages}, (_, i) => i);
+      pagesToShow.push(...Array.from({ length: totalPages }, (_, i) => i));
     } else {
-      // Show current page and adjacent pages
       if (currentPage === 0) {
-        pagesToShow = [0, 1, 2];
+        pagesToShow.push(0, 1, 2);
       } else if (currentPage === totalPages - 1) {
-        pagesToShow = [currentPage - 2, currentPage - 1, currentPage];
+        pagesToShow.push(totalPages - 3, totalPages - 2, totalPages - 1);
       } else {
-        pagesToShow = [currentPage - 1, currentPage, currentPage + 1];
+        pagesToShow.push(currentPage - 1, currentPage, currentPage + 1);
       }
     }
-    
+
     // Render buttons for each visible page
-    pagesToShow.forEach((pageNum, index) => {
+    pagesToShow.forEach((pageNum) => {
       const startIdx = pageNum * wordsPerPage;
       const paginatedWords = words.slice(startIdx, startIdx + wordsPerPage);
-      
+
       buttons.push(
-        <div 
-          key={`page-${pageNum}`} 
-          className={`word-page ${pageNum === currentPage ? 'current-page' : ''}`}
-        >
+        <div key={`page-${pageNum}`} className={`word-page ${pageNum === currentPage ? 'current-page' : ''}`}>
           <span
             className="page-indicator"
             style={{ backgroundColor: getPageColor(pageNum + 1) }}
@@ -618,101 +665,52 @@ Example Response Format:
             {pageNum + 1}
           </span>
           <div className="word-buttons-container">
-            {renderPageWords(paginatedWords, startIdx)}
+            {renderPageWords(paginatedWords, startIdx, pageNum)}
           </div>
         </div>
       );
     });
-    
+
     return buttons;
   };
+
 
   // Helper function to render words for a single page
   const renderPageWords = (paginatedWords, startIdx) => {
     const buttons = [];
-    
+
     for (let i = 0; i < paginatedWords.length; i++) {
       const absoluteIndex = startIdx + i;
-      const phraseInfo = detectedPhrases.find(phrase => 
-        absoluteIndex >= phrase.startIndex && 
-        absoluteIndex <= phrase.endIndex
-      );
-      
-      if (phraseInfo && absoluteIndex === phraseInfo.startIndex) {
-        const phraseLength = phraseInfo.endIndex - phraseInfo.startIndex + 1;
-        const phraseWords = paginatedWords.slice(i, i + phraseLength);
-        
-        // Check if all words in the phrase are individually selected
-        const allWordsSelected = phraseWords.every(word => selectedWords.includes(word));
-        
-        if (selectedWords.includes(phraseInfo.text)) {
-          // Show phrase words in container
-          buttons.push(
-            <div key={`phrase-container-${absoluteIndex}`} className="selected-phrase-container">
-              {phraseWords.map((word, wordIndex) => (
-                <button
-                  key={`word-${absoluteIndex + wordIndex}`}
-                  className="word-button selected-phrase-word"
-                  onClick={() => {
-                    // Remove phrase and select just this word
-                    setSelectedWords(prev => [
-                      ...prev.filter(w => w !== phraseInfo.text),
-                      word
-                    ]);
-                  }}
-                >
-                  {word}
-                </button>
-              ))}
-            </div>
-          );
-        } else if (phraseWords.some(word => selectedWords.includes(word))) {
-          // If any word from the phrase is selected, show all words separately
-          phraseWords.forEach((word, wordIndex) => {
-            buttons.push(
-              <button
-                key={`word-${absoluteIndex + wordIndex}`}
-                className={`word-button ${selectedWords.includes(word) ? 'selected' : ''}`}
-                onClick={() => {
-                  // If this selection would complete the phrase, select the phrase instead
-                  const wouldCompletePhrase = !selectedWords.includes(word) && 
-                    phraseWords.every(w => 
-                      w === word || selectedWords.includes(w)
-                    );
 
-                  if (wouldCompletePhrase) {
-                    setSelectedWords(prev => [
-                      ...prev.filter(w => !phraseWords.includes(w)),
-                      phraseInfo.text
-                    ]);
-                  } else {
-                    handleWordClick(word);
-                  }
-                }}
-              >
-                {word}
-              </button>
-            );
-          });
-        } else {
-          // Show as single phrase button
-          buttons.push(
-            <button
-              key={`phrase-${absoluteIndex}`}
-              className="word-button phrase-button"
-              onClick={() => handlePhraseClick(phraseInfo)}
-            >
-              {phraseWords.join(' ')}
-            </button>
-          );
-        }
-        
-        i += phraseLength - 1;
-      } else if (!phraseInfo) {
+      // Check if this word is part of a selected phrase or word
+      const selectedEntry = selectedWords.find(
+        (sw) =>
+          sw.index === absoluteIndex ||
+          (sw.index <= absoluteIndex &&
+            absoluteIndex < sw.index + sw.word.split(' ').length)
+      );
+
+      if (selectedEntry && absoluteIndex === selectedEntry.index) {
+        // Render the phrase as a single button
+        buttons.push(
+          <button
+            key={`phrase-${absoluteIndex}`}
+            className="word-button phrase-button"
+            onClick={() => handlePhraseClick(selectedEntry)}
+          >
+            {selectedEntry.word}
+          </button>
+        );
+
+        // Skip the rest of the words in this phrase
+        i += selectedEntry.word.split(' ').length - 1;
+      } else if (!selectedEntry) {
+        // Render individual word
         buttons.push(
           <button
             key={`word-${absoluteIndex}`}
-            className={`word-button ${selectedWords.includes(paginatedWords[i]) ? 'selected' : ''}`}
+            className={`word-button ${selectedWords.some((sw) => sw.index === absoluteIndex) ? 'selected' : ''
+              }`}
             onClick={() => handleWordClick(paginatedWords[i])}
           >
             {paginatedWords[i]}
@@ -720,9 +718,10 @@ Example Response Format:
         );
       }
     }
-    
+
     return buttons;
   };
+
 
   
   const handleSentenceAnalysis = async (transcript) => {
@@ -804,6 +803,46 @@ Example Response Format:
       setIsAnalyzing(false);
     }
   };
+
+  const handleCreatePhrase = () => {
+    if (selectedWords.length < 2) {
+      alert("Please select at least two words to create a phrase.");
+      return;
+    }
+
+    // Get the two most recently selected words
+    const lastSelected = selectedWords[selectedWords.length - 1];
+    const secondLastSelected = selectedWords[selectedWords.length - 2];
+
+    if (!lastSelected || !secondLastSelected) {
+      alert("Selected words must be valid.");
+      return;
+    }
+
+    // Ensure the words have valid indices
+    const startIndex = Math.min(lastSelected.index, secondLastSelected.index);
+    const endIndex = Math.max(lastSelected.index, secondLastSelected.index);
+
+    const transcriptWords = transcript.split(' ');
+
+    // Create the phrase from the transcript
+    const newPhrase = transcriptWords.slice(startIndex, endIndex + 1).join(' ');
+
+    // Update selectedWords
+    setSelectedWords((prevWords) => {
+      // Remove words that are part of the new phrase
+      const filteredWords = prevWords.filter(
+        (sw) => sw.index < startIndex || sw.index > endIndex
+      );
+
+      // Add the new phrase
+      return [...filteredWords, { word: newPhrase, index: startIndex }];
+    });
+
+    console.log("New Phrase Created:", newPhrase); // Debugging output
+  };
+
+
 
 
   return (
@@ -897,14 +936,20 @@ Example Response Format:
             </div>
             <div className="page-controls-container">
               <div className="page-navigation">
-                <button
+                {/* <button
                   className={`toggle-button ${isAnalyzing ? 'analyzing' : ''}`}
                   onClick={() => handleSentenceAnalysis(transcript)}
                   disabled={isAnalyzing || !transcript.trim()}
                 >
                   {isAnalyzing ? 'Analyzing...' : 'AI Analysis'}
+                </button> */}
+                <button
+                  className="create-phrase-button"
+                  onClick={handleCreatePhrase}
+                  disabled={selectedWords.length < 2} // Disable if fewer than 2 words are selected
+                >
+                  Create Phrase
                 </button>
-                
                 <button
                   onClick={() => setAutoPaginate(!autoPaginate)}
                   className={`toggle-button ${autoPaginate ? 'active' : ''}`}
@@ -954,13 +999,13 @@ Example Response Format:
           <div className="selected-words-container">
             <div className="selected-words-display">
               <span>Selected Words: </span>
-              {selectedWords.map((word, index) => (
+              {selectedWords.map((sw, index) => (
                 <button
                   key={index}
-                  className={`word-button ${selectedWords.includes(word) ? 'selected' : ''}`}
-                  onClick={() => handleWordClick(word)}
+                  className={`word-button ${selectedWords.includes(sw) ? 'selected' : ''}`}
+                  onClick={() => handleWordClick(sw.word)} // Pass only the word to deselect
                 >
-                  {word} ×
+                  {sw.word} ×
                 </button>
               ))}
               <button 
@@ -975,6 +1020,7 @@ Example Response Format:
 
           {/* Controls Row */}
           <div className="phrase-controls-row">
+          
             {/* Intention Buttons */}
             <div className="intentions-row">
               <button 
@@ -1006,7 +1052,7 @@ Example Response Format:
             </button>
               </div>
           </div>
-
+        
           {showPhrasesModal && generatedResponse.length > 0 && (
             <div className="phrases-overlay" onClick={() => setShowPhrasesModal(false)}>
               <div className="phrases-modal" onClick={e => e.stopPropagation()}>
@@ -1021,15 +1067,16 @@ Example Response Format:
                 <div className="modal-selected-words">
                   <h3>Selected Words</h3>
                   <div className="selected-words-display">
-                    {selectedWords.map((word, index) => (
+                    {selectedWords.map((selectedWord, index) => (
                       <button
                         key={index}
-                        className={`word-button ${selectedWords.includes(word) ? 'selected' : ''}`}
-                        onClick={() => handleWordClick(word)}
+                        className={`word-button ${selectedWords.some(sw => sw.word === selectedWord.word) ? 'selected' : ''}`}
+                        onClick={() => handleWordClick(selectedWord.word)} // Pass only the word, not the whole object
                       >
-                        {word} ×
+                        {selectedWord.word} × {/* Render the `word` property */}
                       </button>
                     ))}
+
                     <button 
                       className="word-button add-word-button"
                       onClick={() => setShowKeyboard(true)}
@@ -1076,19 +1123,24 @@ Example Response Format:
                     </button>
                   </div>
                   <div className="generated-phrases">
-                    {generatedResponse.map((phrase, index) => (
-                      <button
-                        key={index}
-                        className="phrase-button"
-                        onClick={() => {
-                          handlePhraseSpeak(phrase);
-                          setShowPhrasesModal(false);
-                        }}
-                      >
-                        {phrase}
-                      </button>
-                    ))}
+                    {generatedResponse && generatedResponse.length > 0 ? (
+                      generatedResponse.map((phrase, index) => (
+                        <button
+                          key={index}
+                          className="phrase-button"
+                          onClick={() => {
+                            handlePhraseSpeak(phrase);
+                            // setShowPhrasesModal(false);
+                          }}
+                        >
+                          {phrase}
+                        </button>
+                      ))
+                    ) : (
+                      <div className="phrase-item error">No responses generated.</div>
+                    )}
                   </div>
+
                 </div>
               </div>
             </div>
@@ -1116,7 +1168,8 @@ Example Response Format:
                 className="add-input-button"
                 onClick={() => {
                   if (currentInput.trim()) {
-                    setSelectedWords(prev => [...prev, currentInput.trim()]);
+                    let newWord = {word: currentInput.trim(), index: selectedWords.length};
+                    setSelectedWords(prev => [...prev, newWord]);
                     setCurrentInput('');
                     setShowKeyboard(false);
                   }

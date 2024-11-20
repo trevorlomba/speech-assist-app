@@ -1013,3 +1013,14 @@ button.active {
   background-color: #e0e0e0;
   cursor: wait;
 }
+.phrase-button {
+  background-color: #ffd54f; /* Highlight for phrases */
+  border-radius: 8px;
+  padding: 5px 10px;
+  margin: 2px;
+  font-weight: bold;
+}
+
+.word-button.selected {
+  background-color: #90caf9; /* Highlight for selected words */
+}
