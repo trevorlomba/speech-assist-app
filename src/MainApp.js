@@ -6,12 +6,13 @@ import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognitio
 import { BsFillRecordFill } from 'react-icons/bs';  // Record button
 import { BsPauseFill } from 'react-icons/bs';        // Stop button
 import { BiReset } from 'react-icons/bi';           // Reset button
+import { Deepgram } from '@deepgram/sdk';
 
 import config from './config';
 
 import nlp from 'compromise';
 
-
+import io from 'socket.io'
 
 // Add this function before your component or in a utils file
 const getPageColor = (pageNum) => {
@@ -64,7 +65,9 @@ function App() {
   const [autoPaginate, setAutoPaginate] = useState(true);
   const [showKeyboard, setShowKeyboard] = useState(false);
   const [detectedPhrases, setDetectedPhrases] = useState([]);
-
+  const [deepgramTranscript, setDeepgramTranscript] = useState('');
+  const [microphone, setMicrophone] = useState(null);
+  const socketRef = useRef(null);
   const transcriptRef = useRef(null);
 
   const wordsPerPage = 30; // Number of word buttons per page
@@ -79,6 +82,34 @@ function App() {
     command: false,
     // Add any other intention types you need
   });
+
+
+  async function getMicrophone() {
+    const userMedia = await navigator.mediaDevices.getUserMedia({
+      audio: true,
+    });
+
+    return new MediaRecorder(userMedia);
+  }
+
+  async function openMicrophone(microphone, socket) {
+    await microphone.start(500);
+
+    microphone.onstart = () => {
+      console.log("client: microphone opened");
+      document.body.classList.add("recording");
+    };
+
+    microphone.onstop = () => {
+      console.log("client: microphone closed");
+      document.body.classList.remove("recording");
+    };
+
+    microphone.ondataavailable = (e) => {
+      console.log("client: sent data to websocket");
+      socket.emit("packet-sent", e.data);
+    };
+  }
 
   const toggleIntention = (intentionType) => {
     setIntentions(prev => ({
@@ -846,6 +877,12 @@ console.log(generatedResponse)
     console.log("New Phrase Created:", newPhrase); // Debugging output
   };
 
+  // Function to handle Deepgram response
+  const handleDeepgramResponse = (response) => {
+    const { transcript } = response;
+    setDeepgramTranscript(transcript);
+  };
+
 
 
 
@@ -905,6 +942,10 @@ console.log(generatedResponse)
       <div className={`app-container ${!showTranscript ? 'hide-transcript' : ''} ${!showWordPages ? 'hide-word-pages' : ''}`}>
         {showTranscript && (
           <div className="transcript-section">
+            <div className="deepgram-transcript">
+              <h3>Deepgram Transcription</h3>
+              <p>{deepgramTranscript}</p>
+            </div>
             <div className="controls-section">
               <div className="transcript-controls">
                 <button onClick={() => resetTranscript()}>

@@ -25,6 +25,7 @@
 #       - name: Create .env.production file
 #         run: |
 #           echo "REACT_APP_OPENAI_API_KEY=${{ secrets.REACT_APP_OPENAI_API_KEY }}" > .env.production
+#           echo "REACT_APP_DEEPGRAM_API_KEY=${{ secrets.REACT_APP_DEEPGRAM_API_KEY }}" >> .env.production
         
 #       - name: Build
 #         run: CI=false npm run build

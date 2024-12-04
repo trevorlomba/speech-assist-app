@@ -1,1 +1,2 @@
 window.REACT_APP_OPENAI_API_KEY = ''
+window.REACT_APP_DEEPGRAM_API_KEY = ''
